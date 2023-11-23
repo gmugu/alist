@@ -17,7 +17,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: xhofe/alist
+          images: mugu94/alist
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -28,7 +28,7 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v2
         with:
-          username: xhofe
+          username: mugu94
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push
@@ -39,7 +39,7 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          platforms: linux/amd64,linux/arm64,linux/arm/v7,linux/386,linux/arm/v6,linux/s390x
+          platforms: linux/amd64,linux/arm64
 
   release_docker_with_aria2:
     needs: release_docker
@@ -49,20 +49,20 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
         with:
-          repository: alist-org/with_aria2
-          ref: main
+          repository: gmugu/with_aria2_ffmpeg
+          ref: diy
           persist-credentials: false
           fetch-depth: 0
 
       - name: Add tag
         run: |
-          git config --local user.email "bot@nn.ci"
-          git config --local user.name "IlaBot"
+          git config --local user.email "94156510@qq.com"
+          git config --local user.name "MuGu"
           git tag -a ${{ github.ref_name }} -m "release ${{ github.ref_name }}"
 
       - name: Push tags
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.MY_TOKEN }}
-          branch: main
-          repository: alist-org/with_aria2
+          branch: diy
+          repository: gmugu/with_aria2_ffmpeg
