@@ -1,5 +1,9 @@
 package _139
 
+import (
+	"encoding/xml"
+)
+
 type BaseResp struct {
 	Success bool   `json:"success"`
 	Code    string `json:"code"`
@@ -184,4 +188,13 @@ type QueryContentListResp struct {
 		TotalCount       int            `json:"totalCount"`
 		RecallContent    interface{}    `json:"recallContent"`
 	} `json:"data"`
+}
+
+type RefreshTokenResp struct {
+	XMLName     xml.Name   `xml:"root"`
+	Return      string     `xml:"return"`
+	Token       string     `xml:"token"`
+	Expiretime  int32      `xml:"expiretime"`
+	AccessToken string     `xml:"accessToken"`
+	Desc        string     `xml:"desc"`
 }
