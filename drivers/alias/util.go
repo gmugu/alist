@@ -129,7 +129,7 @@ func (d *Alias) getReqPath(ctx context.Context, obj model.Obj) (*string, error) 
 		reqPath = stdpath.Join(dst, sub)
 		_, err = fs.Get(ctx, reqPath, &fs.GetArgs{NoLog: true})
 		if err == nil {
-			if d.ProtectSameName {
+			if /*d.ProtectSameName*/ false {
 				if ok {
 					ok = false
 				} else {
