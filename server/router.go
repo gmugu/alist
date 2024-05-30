@@ -71,6 +71,9 @@ func Init(e *gin.Engine) {
 	public := api.Group("/public")
 	public.Any("/settings", handles.PublicSettings)
 
+	task := auth.Group("/admin/task")
+	handles.SetupTaskRoute(task)
+
 	_fs(auth.Group("/fs"))
 	admin(auth.Group("/admin", middlewares.AuthAdmin))
 	if flags.Debug || flags.Dev {
@@ -122,8 +125,8 @@ func admin(g *gin.RouterGroup) {
 	setting.POST("/set_aria2", handles.SetAria2)
 	setting.POST("/set_qbit", handles.SetQbittorrent)
 
-	task := g.Group("/task")
-	handles.SetupTaskRoute(task)
+	// task := g.Group("/task")
+	// handles.SetupTaskRoute(task)
 
 	ms := g.Group("/message")
 	ms.POST("/get", message.HttpInstance.GetHandle)
