@@ -26,15 +26,18 @@ ldflags="\
 "
 
 FetchWebDev() {
+  curl -L https://codeload.github.com/gmugu/web-dist/tar.gz/refs/heads/dev -o web-dist-dev.tar.gz
+  tar -zxvf web-dist-dev.tar.gz
   rm -rf public/dist
-  tar -zxvf public/dist.tar.gz -C public/
-  rm -rf public/dist.tar.gz
+  mv -f web-dist-dev/dist public
+  rm -rf web-dist-dev web-dist-dev.tar.gz
 }
 
 FetchWebRelease() {
+  curl -L https://github.com/gmugu/alist-web/releases/latest/download/dist.tar.gz -o dist.tar.gz
+  tar -zxvf dist.tar.gz
   rm -rf public/dist
-  tar -zxvf public/dist.tar.gz -C public/
-  rm -rf public/dist.tar.gz
+  mv -f dist public
 }
 
 BuildWinArm64() {
