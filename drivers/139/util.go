@@ -219,7 +219,7 @@ func (d *Yun139) familyGetFiles(catalogID string) ([]model.Obj, error) {
 			"sortDirection": 1,
 		})
 		var resp QueryContentListResp
-		_, err := d.post("/orchestration/familyCloud/content/v1.0/queryContentList", data, &resp)
+		_, err := d.post("/orchestration/familyCloud-rebuild/content/v1.2/queryContentList", data, &resp)
 		if err != nil {
 			return nil, err
 		}

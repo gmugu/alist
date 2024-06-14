@@ -110,7 +110,7 @@ func (d *Yun139) MakeDir(ctx context.Context, parentDir model.Obj, dirName strin
 			},
 			"docLibName": dirName,
 		}
-		pathname = "/orchestration/familyCloud/cloudCatalog/v1.0/createCloudDoc"
+		pathname = "/orchestration/familyCloud-rebuild/cloudCatalog/v1.0/createCloudDoc"
 	}
 	_, err := d.post(pathname, data, nil)
 	return err
@@ -246,8 +246,9 @@ func (d *Yun139) Remove(ctx context.Context, obj model.Obj) error {
 			},
 			"sourceCatalogType": 1002,
 			"taskType":          2,
+			"sourceCloudID":     d.CloudID,
 		}
-		pathname = "/orchestration/familyCloud/batchOprTask/v1.0/createBatchOprTask"
+		pathname = "/orchestration/familyCloud-rebuild/batchOprTask/v1.0/createBatchOprTask"
 	}
 	_, err := d.post(pathname, data, nil)
 	return err
@@ -302,7 +303,7 @@ func (d *Yun139) Put(ctx context.Context, dstDir model.Obj, stream model.FileStr
 				// "digest": "5a3231986ce7a6b46e408612d385bafa"
 			}},
 		})
-		pathname = "/orchestration/familyCloud/content/v1.0/getFileUploadURL"
+		pathname = "/orchestration/familyCloud-rebuild/content/v1.0/getFileUploadURL"
 		return errs.NotImplement
 	}
 	var resp UploadResp
