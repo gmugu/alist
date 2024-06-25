@@ -204,7 +204,7 @@ func FromString(str string) HashInfo {
 	var tmp map[string]string
 	err := json.Unmarshal([]byte(str), &tmp)
 	if err != nil {
-		log.Warnf("failed to unmarsh HashInfo from string=%s", str)
+		log.Debugf("failed to unmarsh HashInfo from string=%s", str)
 	} else {
 		for k, v := range tmp {
 			if name2hash[k] != nil && len(v) > 0 {
