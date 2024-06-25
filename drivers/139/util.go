@@ -13,9 +13,9 @@ import (
 
 	"github.com/alist-org/alist/v3/drivers/base"
 	"github.com/alist-org/alist/v3/internal/model"
+	"github.com/alist-org/alist/v3/internal/op"
 	"github.com/alist-org/alist/v3/pkg/utils"
 	"github.com/alist-org/alist/v3/pkg/utils/random"
-	"github.com/alist-org/alist/v3/internal/op"
 	"github.com/go-resty/resty/v2"
 	jsoniter "github.com/json-iterator/go"
 	log "github.com/sirupsen/logrus"
@@ -223,9 +223,14 @@ func (d *Yun139) familyGetFiles(catalogID string) ([]model.Obj, error) {
 		if err != nil {
 			return nil, err
 		}
+		path := resp.Data.Path
+		if catalogID == "" {
+			d.FamilyRootUploadPath = path
+		}
 		for _, catalog := range resp.Data.CloudCatalogList {
 			f := model.Object{
 				ID:       catalog.CatalogID,
+				Path:     path + "/" + catalog.CatalogID,
 				Name:     catalog.CatalogName,
 				Size:     0,
 				IsFolder: true,
@@ -238,6 +243,7 @@ func (d *Yun139) familyGetFiles(catalogID string) ([]model.Obj, error) {
 			f := model.ObjThumb{
 				Object: model.Object{
 					ID:       content.ContentID,
+					Path:     path + "/" + content.ContentID,
 					Name:     content.ContentName,
 					Size:     content.ContentSize,
 					Modified: getTime(content.LastUpdateTime),
@@ -277,4 +283,17 @@ func unicode(str string) string {
 	textQuoted := strconv.QuoteToASCII(str)
 	textUnquoted := textQuoted[1 : len(textQuoted)-1]
 	return textUnquoted
+}
+
+func genSeqNo() string {
+	var e []string
+	t := "0123456789abcdef"
+	for i := 0; i < 32; i++ {
+		e = append(e, string(t[random.Rand.Intn(16)]))
+	}
+
+	e[12] = "4"
+	e[16] = string(t[3&int(e[16][0])|8])
+
+	return strings.Join(e, "")
 }

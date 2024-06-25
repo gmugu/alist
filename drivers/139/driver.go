@@ -14,16 +14,17 @@ import (
 	"github.com/alist-org/alist/v3/internal/driver"
 	"github.com/alist-org/alist/v3/internal/errs"
 	"github.com/alist-org/alist/v3/internal/model"
-	"github.com/alist-org/alist/v3/pkg/utils"
 	"github.com/alist-org/alist/v3/pkg/cron"
+	"github.com/alist-org/alist/v3/pkg/utils"
 	log "github.com/sirupsen/logrus"
 )
 
 type Yun139 struct {
 	model.Storage
 	Addition
-	cron   *cron.Cron
-	Account string
+	cron                 *cron.Cron
+	Account              string
+	FamilyRootUploadPath string
 }
 
 func (d *Yun139) Config() driver.Config {
@@ -151,31 +152,44 @@ func (d *Yun139) Move(ctx context.Context, srcObj, dstDir model.Obj) (model.Obj,
 }
 
 func (d *Yun139) Rename(ctx context.Context, srcObj model.Obj, newName string) error {
-	if d.isFamily() {
-		return errs.NotImplement
-	}
 	var data base.Json
 	var pathname string
-	if srcObj.IsDir() {
-		data = base.Json{
-			"catalogID":   srcObj.GetID(),
-			"catalogName": newName,
-			"commonAccountInfo": base.Json{
-				"account":     d.Account,
-				"accountType": 1,
-			},
+	if d.isFamily() {
+		if srcObj.IsDir() {
+			return errs.NotImplement
+		} else {
+			data = base.Json{
+				"contentID":   srcObj.GetID(),
+				"contentName": newName,
+				"commonAccountInfo": base.Json{
+					"account":     d.Account,
+					"accountType": 1,
+				},
+			}
+			pathname = "/orchestration/familyCloud-rebuild/photoContent/v1.0/modifyContentInfo"
 		}
-		pathname = "/orchestration/personalCloud/catalog/v1.0/updateCatalogInfo"
 	} else {
-		data = base.Json{
-			"contentID":   srcObj.GetID(),
-			"contentName": newName,
-			"commonAccountInfo": base.Json{
-				"account":     d.Account,
-				"accountType": 1,
-			},
+		if srcObj.IsDir() {
+			data = base.Json{
+				"catalogID":   srcObj.GetID(),
+				"catalogName": newName,
+				"commonAccountInfo": base.Json{
+					"account":     d.Account,
+					"accountType": 1,
+				},
+			}
+			pathname = "/orchestration/personalCloud/catalog/v1.0/updateCatalogInfo"
+		} else {
+			data = base.Json{
+				"contentID":   srcObj.GetID(),
+				"contentName": newName,
+				"commonAccountInfo": base.Json{
+					"account":     d.Account,
+					"accountType": 1,
+				},
+			}
+			pathname = "/orchestration/personalCloud/content/v1.0/updateContentInfo"
 		}
-		pathname = "/orchestration/personalCloud/content/v1.0/updateContentInfo"
 	}
 	_, err := d.post(pathname, data, nil)
 	return err
@@ -290,12 +304,16 @@ func (d *Yun139) Put(ctx context.Context, dstDir model.Obj, stream model.FileStr
 	}
 	pathname := "/orchestration/personalCloud/uploadAndDownload/v1.0/pcUploadFileRequest"
 	if d.isFamily() {
+		path := dstDir.GetPath()
+		if path == "" {
+			path = d.FamilyRootUploadPath
+		}
 		data = d.newJson(base.Json{
 			"fileCount":    1,
 			"manualRename": 2,
 			"operation":    0,
-			"path":         "",
-			"seqNo":        "",
+			"path":         path,
+			"seqNo":        genSeqNo(),
 			"totalSize":    0,
 			"uploadContentList": []base.Json{{
 				"contentName": stream.GetName(),
@@ -304,7 +322,6 @@ func (d *Yun139) Put(ctx context.Context, dstDir model.Obj, stream model.FileStr
 			}},
 		})
 		pathname = "/orchestration/familyCloud-rebuild/content/v1.0/getFileUploadURL"
-		return errs.NotImplement
 	}
 	var resp UploadResp
 	_, err := d.post(pathname, data, &resp)
