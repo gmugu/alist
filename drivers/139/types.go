@@ -4,6 +4,12 @@ import (
 	"encoding/xml"
 )
 
+const (
+	MetaPersonal    string = "personal"
+	MetaFamily      string = "family"
+	MetaPersonalNew string = "personal_new"
+)
+
 type BaseResp struct {
 	Success bool   `json:"success"`
 	Code    string `json:"code"`
@@ -191,10 +197,49 @@ type QueryContentListResp struct {
 }
 
 type RefreshTokenResp struct {
-	XMLName     xml.Name   `xml:"root"`
-	Return      string     `xml:"return"`
-	Token       string     `xml:"token"`
-	Expiretime  int32      `xml:"expiretime"`
-	AccessToken string     `xml:"accessToken"`
-	Desc        string     `xml:"desc"`
+	XMLName     xml.Name `xml:"root"`
+	Return      string   `xml:"return"`
+	Token       string   `xml:"token"`
+	Expiretime  int32    `xml:"expiretime"`
+	AccessToken string   `xml:"accessToken"`
+	Desc        string   `xml:"desc"`
+}
+
+type PersonalThumbnail struct {
+	Style string `json:"style"`
+	Url   string `json:"url"`
+}
+
+type PersonalFileItem struct {
+	FileId     string              `json:"fileId"`
+	Name       string              `json:"name"`
+	Size       int64               `json:"size"`
+	Type       string              `json:"type"`
+	CreatedAt  string              `json:"createdAt"`
+	UpdatedAt  string              `json:"updatedAt"`
+	Thumbnails []PersonalThumbnail `json:"thumbnailUrls"`
+}
+
+type PersonalListResp struct {
+	BaseResp
+	Data struct {
+		Items          []PersonalFileItem `json:"items"`
+		NextPageCursor string             `json:"nextPageCursor"`
+	}
+}
+
+type PersonalPartInfo struct {
+	PartNumber int    `json:"partNumber"`
+	UploadUrl  string `json:"uploadUrl"`
+}
+
+type PersonalUploadResp struct {
+	BaseResp
+	Data struct {
+		FileId      string             `json:"fileId"`
+		PartInfos   []PersonalPartInfo `json:"partInfos"`
+		Exist       bool               `json:"exist"`
+		RapidUpload bool               `json:"rapidUpload"`
+		UploadId    string             `json:"uploadId"`
+	}
 }
